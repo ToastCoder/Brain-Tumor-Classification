@@ -28,7 +28,7 @@ files = os.listdir(data_dir)
 images = np.vstack(images)
 
 # PREDICTING THE CLASSIFICATION FOR EVERY FILE IN THE SAMPLES DIRECTORY
-classes = model.predict(images, batch_size=10)
+classes = model.predict(images, batch_size=1)
 
 # USER UNDERSTANDABLE OUTPUT FORMATTING
 print(classes)
