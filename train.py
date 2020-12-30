@@ -37,20 +37,24 @@ test_data = datagen_test.flow_from_directory(dir_test,
 def tumorModel():
     model = tf.keras.models.Sequential()
     model.add(tf.keras.layers.Conv2D( input_shape = (200,200,1), activation = 'relu', filters = 32, kernel_size = (5,5) ))
-    model.add(tf.keras.layers.MaxPool2D( pool_size = 2, strides = 2 ))
+    model.add(tf.keras.layers.MaxPool2D( pool_size = (3,3), strides = (3,3) ))
     model.add(tf.keras.layers.Dropout(rate= 0.25))
-    model.add(tf.keras.layers.Conv2D( filters = 64, kernel_size = (3,3), activation = 'relu'))
-    model.add(tf.keras.layers.MaxPool2D(pool_size = 2, strides = 2))
+    model.add(tf.keras.layers.Conv2D( filters = 64, kernel_size = (5,5), activation = 'relu'))
+    model.add(tf.keras.layers.MaxPool2D(pool_size = (3,3), strides = (3,3)))
     model.add(tf.keras.layers.Dropout(rate= 0.25))
     model.add(tf.keras.layers.Conv2D( filters = 128, kernel_size = (3,3), activation = 'relu'))
-    model.add(tf.keras.layers.MaxPool2D(pool_size = 2, strides = 2))
+    model.add(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2)))
+    model.add(tf.keras.layers.Dropout(rate= 0.25))
+    model.add(tf.keras.layers.Conv2D( filters = 256, kernel_size = (3,3), activation = 'relu'))
+    model.add(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2)))
     model.add(tf.keras.layers.Dropout(rate= 0.25))
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(256, activation = 'relu'))
+    model.add(tf.keras.layers.Dense(512, activation = 'relu'))
+    model.add(tf.keras.layers.Dense(512, activation = 'relu'))
     model.add(tf.keras.layers.Dense(4, activation = 'softmax'))
     return model
 
-ACC_THRESHOLD = 0.99
+ACC_THRESHOLD = 0.97
 # CALLBACK CLASS
 class Callback(tf.keras.callbacks.Callback): 
     def on_epoch_end(self, epoch, logs={}): 
@@ -63,6 +67,15 @@ callback = Callback()
 # FITTING THE DATA AND TRAINING THE MODEL
 model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 history = model.fit(train_data, validation_data = test_data, epochs = 30,verbose = 1, batch_size = 1,callbacks = [callback])
+
+# PLOTTING THE GRAPH FOR TRAIN-LOSS AND VALIDATION-LOSS
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
 
 # SAVING THE TRAINED MODEL
 tf.keras.models.save_model(model,'./model/tumor-model')
